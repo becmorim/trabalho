@@ -4,8 +4,8 @@ let rows = 16;
 let columns = 16;
 
 let board;
-let boardWidth = tileSize * columns // 32 * 16
-let boardHeight = tileSize * rows // 32 * 16
+let boardWidth = tileSize * columns; // 32 * 16
+let boardHeight = tileSize * rows; // 32 * 16
 let context;
 
 //ship
@@ -21,12 +21,81 @@ let ship = {
     height : shipHeight
 }
 
-windows.onload = function() {
+    let shipImg;
+    let shipVelocityX = tileSize; 
+    //aliens
+    let alienArray = [];
+    let alienWidth = tileSize*2;
+    let alienHeight = tileSize;
+    let alienX = tileSize;
+    let alienY = tileSize;
+    let alienImg;
+
+    let alienRows = 2;
+    let alienColumns = 3;
+    let alienCount = 0; //aliens pra derrotar
+    let alienVelocityX = 1; //velocidade do alien
+
+
+window.onload = function() {
     board = document.getElementById("board");
     board.width = boardWidth;
     board.height = boardHeight
     context = board.getContext("2d"); // pra desenhar
-  // nave
-  context.fillStyle="green";
-  context.fillRect(ship.x, ship.y, ship.width, ship.height);
+  // carregar a img
+  shipImg =new Image();
+  shipImg.src = "./ship.png";
+  shipImg.onload = function() {
+  context.drawImage(shipImg, ship.x, ship.y, ship.width, ship.height)
+  }
+  alienImg = new Image();
+  alienImg.src = "./alien.png";
+  createAliens();
+
+  requestAnimationFrame(update);
+  document.addEventListener("keydown", moveShip);
+}
+function update() {
+  requestAnimationFrame(update);
+  context.clearRect(0, 0, board.width, board.height);
+  //nave
+  context.drawImage(shipImg, ship.x, ship.y, ship.width, ship.height)
+  //aliens
+  for (let i = 0; i < alienArray.length; i++) {
+    let alien = alienArray[i];
+    if (alien.alive) {
+        alien.x += alienVelocityX;
+        // fazer o alien ir e voltar
+        if (alien.x + alien.width >= board.width || alien.x <=0) {
+            alienVelocityX *= -1;
+        }
+        context.drawImage(alienImg, alien.x, alien.y, alien.width, alien.height);
+    }
+  }
+}
+
+function moveShip(e) {
+    if (e.code == "ArrowLeft" && ship.x - shipVelocityX >= 0) {
+        ship.x -= shipVelocityX; // esquerda
+    }
+    else if (e.code == "ArrowRight" && ship.x + shipVelocityX + ship.width <= board.width) {
+        ship.x += shipVelocityX //direita
+    }
+}
+
+function createAliens() {
+    for (let c = 0; c < alienColumns; c++) {
+        for (let r = 0; r < alienRows; r++) {
+            let alien = {
+                img : alienImg,
+                x : alienX + c*alienWidth,
+                y : alienY + r*alienHeight,
+                width : alienWidth,
+                height : alienHeight,
+                alive : true
+            }
+            alienArray.push(alien);
+        }
+    }
+    alienCount = alienArray.length;
 }
