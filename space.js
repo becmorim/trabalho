@@ -87,7 +87,20 @@ function update() {
       bullet.y += bulletVelocityY;
       context.fillStyle="white";
       context.fillRect(bullet.x, bullet.y, bullet.width, bullet.height)
+
+      //colisão dos tiros
+      for (let j = 0; j < alienArray.length; j++) {
+        let alien = alienArray[j];
+        if (!bullet.used && alien.alive && detectcollision(bullet, alien)) {
+            bullet.used = true;
+            alien.alive = false;
+            alienCount--; 
+        }
+      }
   }
+
+while(bulletArray.length > 0 && (bulletArray[0].used || bulletArray[0].y < 0))
+      bulletArray.shift();
 }
 
 function moveShip(e) {
@@ -129,4 +142,11 @@ function shoot(e) {
         }
         bulletArray.push(bullet);
     }
+}
+
+function detectcollision(a, b) {
+    return a.x < b.x + b.width &&
+           a.x + a.width > b.x &&
+           a.y < b.y + b.height &&
+           a.y + a.height > b.y;
 }
